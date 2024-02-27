@@ -2,15 +2,40 @@ import {useParams} from "react-router";
 import styled from "styled-components";
 import React, {useEffect, useState} from "react";
 import {Helmet} from "react-helmet";
-import {Link, Route, Switch, useLocation, useRouteMatch} from "react-router-dom";
+import {Link, Route, Switch, useHistory, useLocation, useRouteMatch} from "react-router-dom";
 import Chart from "./Chart";
 import Price from "./Price";
 import {useQuery} from "react-query";
 import {fetchCoinInfo, fetchCoinTickers} from "./api";
 
+const Header = styled.header`
+    height: 15vh;
+    display: flex;
+    justify-content: flex-start; /* Align items to the start of the container */
+    align-items: center;
+    width: 100%; /* Ensure the header takes up full width */
+    padding-left: 20px; /* Add some padding to the left */
+`;
+
+const TitleContainer = styled.div`
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
 const Title = styled.h1`
     font-size: 48px;
     color: ${(props) => props.theme.accentColor};
+`;
+const Button = styled.button`
+    font-size: 30px;
+    color: ${(props) => props.theme.accentColor};
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0; /* Adjust padding as needed */
+    margin-right: auto; /* Pushes everything else to the right */
 `;
 
 const Loader = styled.span`
@@ -24,12 +49,6 @@ const Container = styled.div`
     margin: 0 auto;
 `;
 
-const Header = styled.header`
-    height: 15vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`;
 const Overview = styled.div`
     display: flex;
     justify-content: space-between;
@@ -155,6 +174,7 @@ function Coin() {
         }
     );
     const loading = infoLoading || tickersLoading;
+    const history = useHistory();
     return (
         <Container>
             <Helmet>
@@ -163,9 +183,12 @@ function Coin() {
                 </title>
             </Helmet>
             <Header>
-                <Title>
-                    {state?.name ? state.name : loading ? "Loading..." : infoData?.name}
-                </Title>
+                <Button onClick={() => history.goBack()}>&lt;</Button>
+                <TitleContainer>
+                    <Title>
+                        {state?.name ? state.name : loading ? "Loading..." : infoData?.name}
+                    </Title>
+                </TitleContainer>
             </Header>
             {loading ? (
                 <Loader>Loading...</Loader>
@@ -210,7 +233,7 @@ function Coin() {
                     </Tabs>
                     <Switch>
                         <Route path={`/:coinId/price`}>
-                            <Price/>
+                            {tickersData ? <Price tickersData={tickersData}/> : <div>Loading...</div>}
                         </Route>
                         <Route path={`/:coinId/chart`}>
                             <Chart coinId={coinId}/>
